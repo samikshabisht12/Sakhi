@@ -38,7 +38,7 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-const ADMIN_PASSCODE = 'sakhi12';
+const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'sakhi12';
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);

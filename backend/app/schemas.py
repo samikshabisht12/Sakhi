@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 import re
@@ -10,7 +10,8 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_password(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
@@ -24,7 +25,8 @@ class UserCreate(UserBase):
             raise ValueError('Password must contain at least one special character')
         return v
 
-    @validator('email')
+    @field_validator('email')
+    @classmethod
     def validate_email(cls, v):
         # Block common fake email domains
         fake_domains = [
@@ -43,8 +45,7 @@ class UserResponse(UserBase):
     is_verified: bool
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -64,8 +65,7 @@ class ChatSessionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MessageCreate(BaseModel):
     content: str
@@ -76,17 +76,10 @@ class MessageResponse(BaseModel):
     is_user_message: bool
     timestamp: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ChatResponse(BaseModel):
     message: str
-
-class EmailVerificationRequest(BaseModel):
-    email: EmailStr
-
-class EmailVerificationConfirm(BaseModel):
-    token: str
 
 # Report schemas
 class ReportFileInfo(BaseModel):
@@ -116,13 +109,13 @@ class ReportResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReportStatusUpdate(BaseModel):
     status: str
 
-    @validator('status')
+    @field_validator('status')
+    @classmethod
     def validate_status(cls, v):
         allowed_statuses = ['pending', 'reviewed', 'resolved']
         if v not in allowed_statuses:

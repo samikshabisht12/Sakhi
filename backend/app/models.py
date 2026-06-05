@@ -46,16 +46,6 @@ class Message(Base):
     chat_session = relationship("ChatSession", back_populates="messages")
     user = relationship("User", back_populates="messages")
 
-class EmailVerification(Base):
-    __tablename__ = "email_verifications"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, nullable=False)
-    token = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    expires_at = Column(DateTime, nullable=False)
-    is_used = Column(Boolean, default=False)
-
 class Report(Base):
     __tablename__ = "reports"
 

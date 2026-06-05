@@ -272,10 +272,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onToggleSidebar, onAdminAccess }) =
                 </div>
                 <button
                   onClick={handleAuthAction}
-                  className="glass-button p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+                  className="glass-button p-2 sm:p-3 rounded-full hover:bg-red-500/20 transition-colors group"
                   title="Logout"
                 >
-                  <FiLogOut className="w-4 h-4" />
+                  <FiLogOut className="w-4 h-4 text-white group-hover:text-red-400 transition-colors" />
                 </button>
               </div>
 
