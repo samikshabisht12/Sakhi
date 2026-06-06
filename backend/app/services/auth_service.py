@@ -62,7 +62,7 @@ def verify_token(token: str, token_type: str = "access"):
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return email
+        return payload
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -118,7 +118,8 @@ async def get_current_user(
 ) -> User:
     """Get current authenticated user"""
     token = credentials.credentials
-    email = verify_token(token)
+    payload = verify_token(token)
+    email = payload.get("sub")
     user = get_user_by_email(db, email)
     if user is None:
         raise HTTPException(

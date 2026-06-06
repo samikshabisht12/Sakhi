@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+
 import uvicorn
 import os
 import sys

@@ -63,7 +63,7 @@ class ChatSessionResponse(BaseModel):
     id: int
     title: str
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -106,7 +106,7 @@ class ReportResponse(BaseModel):
     files: List[ReportFileInfo]
     status: str
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 

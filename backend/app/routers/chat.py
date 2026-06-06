@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 
 from ..database import get_db
 from ..models import ChatSession, Message, User
@@ -63,7 +64,7 @@ async def get_chat_messages(
 
     messages = db.query(Message).filter(
         Message.chat_session_id == session_id
-    ).order_by(Message.timestamp.asc()).all()
+    ).order_by(Message.created_at.asc()).all()
 
     return messages
 
@@ -97,7 +98,7 @@ async def send_message(
 
         previous_messages = db.query(Message).filter(
             Message.chat_session_id == session_id
-        ).order_by(Message.timestamp.desc()).limit(20).all()
+        ).order_by(Message.created_at.desc()).limit(20).all()
 
         conversation_history = [
             {
@@ -177,7 +178,7 @@ async def update_session_title(
     first_message = db.query(Message).filter(
         Message.chat_session_id == session_id,
         Message.is_user_message == True
-    ).order_by(Message.timestamp.asc()).first()
+    ).order_by(Message.created_at.asc()).first()
 
     if not first_message:
         raise HTTPException(
