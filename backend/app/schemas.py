@@ -81,7 +81,6 @@ class MessageResponse(BaseModel):
 class ChatResponse(BaseModel):
     message: str
 
-# Report schemas
 class ReportFileInfo(BaseModel):
     id: Optional[str] = None
     name: str

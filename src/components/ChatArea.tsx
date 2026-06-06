@@ -10,10 +10,8 @@ import LoginModal from './LoginModal';
 import type { Message } from '../types';
 import 'highlight.js/styles/github-dark.css';
 
-// Component to render message content with markdown support
 const MessageContent: React.FC<{ content: string; role: 'user' | 'assistant' }> = ({ content, role }) => {
   if (role === 'user') {
-    // Render user messages as plain text with line breaks preserved
     return (
       <p className="text-sm leading-relaxed whitespace-pre-wrap">
         {content}
@@ -21,14 +19,12 @@ const MessageContent: React.FC<{ content: string; role: 'user' | 'assistant' }> 
     );
   }
 
-  // Render AI messages with markdown support
   return (
     <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none overflow-hidden">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
         components={{
-          // Custom styling for markdown elements
           p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
           h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
           h2: ({ children }) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
@@ -102,12 +98,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onToggleSidebar, onAdminAccess }) =
   const viewportHeight = useViewportHeight();
 
   const handleInputFocus = () => {
-    // Prevent automatic scrolling - let the dynamic height adjustment handle positioning
-    // The ChatArea height will adjust automatically when keyboard appears
   };
 
   const handleInputBlur = () => {
-    // Input blur handler - can be used for cleanup if needed
   };
 
   const handleAuthAction = () => {

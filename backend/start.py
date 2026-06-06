@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
 """
-Startup script for the AI Chatbot backend server
-"""
 import uvicorn
 import os
 import sys
 from pathlib import Path
 
-# Add the backend directory to Python path
-backend_dir = Path(__file__).parent
-sys.path.insert(0, str(backend_dir))
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, backend_dir)
+os.chdir(backend_dir)
 
 def main():
-    """Main function to start the server"""
-    # Set environment variables if .env file exists
-    env_file = backend_dir.parent / ".env"
-    if env_file.exists():
+    env_path = os.path.join(os.path.dirname(backend_dir), '.env')
+    if os.path.exists(env_path):
         from dotenv import load_dotenv
-        load_dotenv(env_file)
+        load_dotenv(env_path)
 
-    # Start the server
     uvicorn.run(
         "main:app",
         host="0.0.0.0",

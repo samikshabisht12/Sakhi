@@ -112,7 +112,6 @@ const ReportForm: React.FC<ReportFormProps> = ({ onBack }) => {
     setSubmitMessage('');
 
     try {
-      // Create FormData for file upload
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
       formDataToSend.append('email', formData.email);
@@ -120,18 +119,15 @@ const ReportForm: React.FC<ReportFormProps> = ({ onBack }) => {
       formDataToSend.append('subject', formData.subject);
       formDataToSend.append('description', formData.description);
 
-      // Add files to FormData
       formData.files.forEach((file) => {
         formDataToSend.append('files', file);
       });
 
-      // Submit directly to API using the API service
       await apiService.createReportWithFiles(formDataToSend);
 
       setSubmitMessage('Your report has been submitted successfully. We will review it and get back to you soon.');
       setIsSubmitted(true);
 
-      // Reset form after successful submission
       setTimeout(() => {
         setFormData({
           name: '',

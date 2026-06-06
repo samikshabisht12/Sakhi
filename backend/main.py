@@ -7,7 +7,6 @@ from app.database import engine
 from app.models import Base
 from app.routers import auth, chat, reports
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -16,12 +15,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
 allowed_origins = [
     config("FRONTEND_URL", default="http://localhost:5173"),
 ]
 
-# Add additional allowed origins from environment variable
 additional_origins = config("ADDITIONAL_ALLOWED_ORIGINS", default="").split(",")
 allowed_origins.extend([origin.strip() for origin in additional_origins if origin.strip()])
 
@@ -33,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
 app.include_router(reports.router, tags=["reports"])

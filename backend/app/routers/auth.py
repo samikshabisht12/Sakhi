@@ -46,10 +46,9 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
             detail="Inactive user"
         )
 
-    # Create tokens
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.email, "user_id": user.id}, expires_delta=access_token_expires
     )
     refresh_token = create_refresh_token(data={"sub": user.email})
 
@@ -70,7 +69,8 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
     from ..services.auth_service import verify_token, get_user_by_email
 
     try:
-        email = verify_token(refresh_token, token_type="refresh")
+        payload = verify_token(refresh_token, token_type="refresh")
+        email = payload.get("sub")
         user = get_user_by_email(db, email)
 
         if not user or not user.is_active:
@@ -79,10 +79,10 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
                 detail="Invalid refresh token"
             )
 
-        # Create new tokens
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        user_id = payload.get("user_id")
         access_token = create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires
+            data={"sub": email, "user_id": user_id}, expires_delta=access_token_expires
         )
         new_refresh_token = create_refresh_token(data={"sub": user.email})
 

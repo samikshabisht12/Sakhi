@@ -105,7 +105,6 @@ class ApiService {
       ...options,
     };
 
-    // Add authorization header if token exists
     if (this.accessToken) {
       config.headers = {
         ...config.headers,
@@ -118,12 +117,10 @@ class ApiService {
 
       if (!response.ok) {
         if (response.status === 401 && this.accessToken) {
-          // Only try to refresh if we have an access token (user was logged in)
           const refreshToken = localStorage.getItem('refresh_token');
           if (refreshToken) {
             try {
               await this.refreshToken();
-              // Retry the request with new token
               config.headers = {
                 ...config.headers,
                 Authorization: `Bearer ${this.accessToken}`,
@@ -134,12 +131,10 @@ class ApiService {
               }
               return retryResponse.json();
             } catch (refreshError) {
-              // Refresh failed, logout and throw original error
               this.logout();
               throw new Error(`Authentication failed`);
             }
           } else {
-            // No refresh token, just logout and throw error
             this.logout();
             throw new Error(`Authentication required`);
           }
@@ -153,14 +148,14 @@ class ApiService {
     } catch (error) {
       console.error('API request failed:', error);
 
-      // Check if it's a network error (backend not running)
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error(`Backend server is not running. Please check if the backend server is running on ${API_BASE_URL}`);
       }
 
       throw error;
     }
-  }  // Authentication methods
+  }
+
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await this.request<AuthResponse>('/auth/login', {
       method: 'POST',
@@ -201,7 +196,6 @@ class ApiService {
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
     } catch (error) {
-      // Refresh failed, logout user
       this.logout();
       throw error;
     }
@@ -213,7 +207,6 @@ class ApiService {
     localStorage.removeItem('refresh_token');
   }
 
-  // Chat methods
   async getChatSessions(): Promise<ChatSession[]> {
     return this.request<ChatSession[]>('/chat/sessions');
   }
@@ -248,7 +241,6 @@ class ApiService {
     });
   }
 
-  // Report API methods
   async createReport(report: ReportCreate): Promise<ReportResponse> {
     return this.request<ReportResponse>('/api/reports', {
       method: 'POST',
@@ -256,7 +248,6 @@ class ApiService {
     });
   }
 
-  // Method for creating report with file uploads (FormData)
   async createReportWithFiles(formData: FormData): Promise<ReportResponse> {
     const response = await fetch(`${API_BASE_URL}/api/reports`, {
       method: 'POST',
@@ -307,7 +298,6 @@ class ApiService {
     return this.request<ReportStats>('/api/reports/stats/summary');
   }
 
-  // Check if user is authenticated
   isAuthenticated(): boolean {
     return !!this.accessToken;
   }

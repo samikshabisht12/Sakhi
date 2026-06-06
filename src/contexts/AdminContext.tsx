@@ -47,7 +47,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load admin auth state from localStorage on mount
   useEffect(() => {
     const adminAuth = localStorage.getItem('admin_authenticated');
     if (adminAuth === 'true') {
@@ -87,7 +86,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const newReport = await apiService.createReport(reportCreate);
 
-      // Convert API response to our Report interface
       const formattedReport: Report = {
         id: newReport.id,
         name: newReport.name,
@@ -103,7 +101,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       setReports(prev => [formattedReport, ...prev]);
 
-      // Refresh stats
       await loadReportStats();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create report');
@@ -130,7 +127,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         )
       );
 
-      // Refresh stats
       await loadReportStats();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update report status');
@@ -149,7 +145,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       setReports(prev => prev.filter(report => report.id !== reportId));
 
-      // Refresh stats
       await loadReportStats();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete report');
@@ -166,7 +161,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const apiReports = await apiService.getAllReports(statusFilter, search);
 
-      // Convert API responses to our Report interface
       const formattedReports: Report[] = apiReports.map(report => ({
         id: report.id,
         name: report.name,
@@ -195,7 +189,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setReportStats(stats);
     } catch (err) {
       console.error('Failed to load report stats:', err);
-      // Don't set error state for stats, as it's not critical
     }
   };
 

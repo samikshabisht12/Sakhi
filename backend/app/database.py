@@ -3,22 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from decouple import config
 
-# Database URL
 DATABASE_URL = config("DATABASE_URL", default="sqlite:///./sakhi.db")
 
-# Create engine
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
 
-# Create session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class
 Base = declarative_base()
 
-# Dependency to get database session
 def get_db():
     db = SessionLocal()
     try:

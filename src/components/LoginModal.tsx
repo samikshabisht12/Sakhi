@@ -51,7 +51,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       setFormData({ email: '', username: '', password: '', confirmPassword: '' });
       onClose();
     } catch (err) {
-      // Error is handled by the auth context
       console.error('Authentication error:', err);
     }
   };

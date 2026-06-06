@@ -71,7 +71,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     { value: 'resolved', label: 'Resolved' }
   ];
 
-  // Load reports and stats when component mounts or filter changes
   useEffect(() => {
     if (reports.length === 0) {
       loadReports(statusFilter === 'all' ? undefined : statusFilter, searchTerm);
@@ -81,7 +80,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     }
   }, []);
 
-  // Close filter dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
@@ -169,18 +167,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   };
 
   const handleViewFile = (file: any) => {
-    // Check if this is a legacy file (without id) or new file (with id)
     if (!file.id) {
       alert(`This file was uploaded before the file storage system was implemented.\n\nFile: ${file.name}\nType: ${file.type}\nSize: ${formatFileSize(file.size)}\n\nOnly the file metadata is available. The actual file content was not stored.`);
       return;
     }
 
     if (file.type.startsWith('image/')) {
-      // For images, open in a new tab using the download endpoint
       const downloadUrl = `${API_BASE_URL}/api/reports/${selectedReport?.id}/files/${file.id}`;
       window.open(downloadUrl, '_blank');
     } else {
-      // For non-images, show file info
       alert(`File: ${file.name}\nType: ${file.type}\nSize: ${formatFileSize(file.size)}\n\nClick download to save the file.`);
     }
   };
@@ -189,7 +184,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     try {
       if (!selectedReport) return;
 
-      // Check if this is a legacy file (without id)
       if (!file.id) {
         alert(`This file was uploaded before the file storage system was implemented.\n\nFile: ${file.name}\nType: ${file.type}\nSize: ${formatFileSize(file.size)}\n\nOnly the file metadata is available. The actual file content was not stored and cannot be downloaded.`);
         return;

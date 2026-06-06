@@ -4,19 +4,17 @@ import asyncio
 from typing import List, Dict
 import logging
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class GeminiService:
     def __init__(self):
-        self.api_key = config("GEMINI_API_KEY")
+        self.api_key = config("GEMINI_API_KEY", default="")
         if not self.api_key or self.api_key == "your_gemini_api_key_here":
             raise ValueError("GEMINI_API_KEY not found or not set properly in environment variables")
 
         genai.configure(api_key=self.api_key)
 
-        # Configure the model
         self.generation_config = {
             "temperature": 0.7,
             "top_p": 0.8,
@@ -43,7 +41,6 @@ class GeminiService:
             }
         ]
 
-        # Initialize the model
         self.model = genai.GenerativeModel(
             model_name="gemini-2.5-flash",
             generation_config=self.generation_config,
@@ -53,18 +50,7 @@ class GeminiService:
         logger.info("Gemini AI service initialized successfully")
 
     async def generate_response(self, message: str, conversation_history: List[Dict[str, str]] = None) -> str:
-        """
-        Generate AI response using Gemini API with Sakhi's professional women's support system
-
-        Args:
-            message (str): User's message
-            conversation_history (List[Dict]): Previous conversation context
-
-        Returns:
-            str: AI response
-        """
         try:
-            # Define the Sakhi system prompt for women's professional support
             system_prompt = """You are Sakhi, a professional AI assistant specifically designed to support and empower women. 💗 You are warm, understanding, and knowledgeable about women's unique challenges and experiences.
 
 **Your Core Purpose:**
@@ -102,24 +88,17 @@ class GeminiService:
 
 Remember: You are here to support, guide, and empower women to live their best lives. Be the caring, knowledgeable friend and advisor that every woman deserves. ✨"""
 
-            # Build context from conversation history
-            context = ""
+            chat = self.model.start_chat(history=[])
+            
             if conversation_history:
-                for msg in conversation_history[-10:]:  # Last 10 messages for context
-                    role = "User" if msg.get("is_user_message") else "Assistant"
-                    context += f"{role}: {msg.get('content', '')}\n"
+                for msg in conversation_history[-10:]:
+                    role = "user" if msg.get("is_user_message") else "model"
+                    chat.history.append({"role": role, "parts": [msg.get("content", "")]})
 
-            # Prepare the prompt
-            if context:
-                full_prompt = f"{system_prompt}\n\nConversation history:\n{context}\nUser: {message}\nAssistant:"
-            else:
-                full_prompt = f"{system_prompt}\n\nUser: {message}\nAssistant:"
-
-            # Generate response
-            response = await asyncio.to_thread(
-                self.model.generate_content,
-                full_prompt
-            )
+            if not chat.history:
+                chat.history.append({"role": "user", "parts": [system_prompt]})
+            
+            response = await asyncio.to_thread(chat.send_message, message)
 
             if response.text:
                 return response.text.strip()

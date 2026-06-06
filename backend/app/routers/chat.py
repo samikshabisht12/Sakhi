@@ -50,7 +50,6 @@ async def get_chat_messages(
     db: Session = Depends(get_db)
 ):
     """Get all messages for a specific chat session"""
-    # Verify session belongs to user
     session = db.query(ChatSession).filter(
         ChatSession.id == session_id,
         ChatSession.user_id == current_user.id
@@ -75,8 +74,6 @@ async def send_message(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Send a message and get AI response"""
-    # Verify session belongs to user
     session = db.query(ChatSession).filter(
         ChatSession.id == session_id,
         ChatSession.user_id == current_user.id
@@ -89,7 +86,6 @@ async def send_message(
         )
 
     try:
-        # Save user message
         user_message = Message(
             chat_session_id=session_id,
             user_id=current_user.id,
@@ -99,12 +95,10 @@ async def send_message(
         db.add(user_message)
         db.commit()
 
-        # Get conversation history for context
         previous_messages = db.query(Message).filter(
             Message.chat_session_id == session_id
         ).order_by(Message.timestamp.desc()).limit(20).all()
 
-        # Convert to format expected by Gemini service
         conversation_history = [
             {
                 "content": msg.content,
@@ -113,13 +107,11 @@ async def send_message(
             for msg in reversed(previous_messages)
         ]
 
-        # Generate AI response
         ai_response = await gemini_service.generate_response(
             message_data.content,
             conversation_history
         )
 
-        # Save AI response
         ai_message = Message(
             chat_session_id=session_id,
             user_id=current_user.id,
@@ -129,8 +121,6 @@ async def send_message(
         db.add(ai_message)
         db.commit()
 
-        # Update session timestamp
-        from datetime import datetime
         session.updated_at = datetime.utcnow()
         db.commit()
 
@@ -149,8 +139,6 @@ async def delete_chat_session(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Delete a chat session and all its messages"""
-    # Verify session belongs to user
     session = db.query(ChatSession).filter(
         ChatSession.id == session_id,
         ChatSession.user_id == current_user.id
@@ -162,10 +150,8 @@ async def delete_chat_session(
             detail="Chat session not found"
         )
 
-    # Delete all messages in the session
     db.query(Message).filter(Message.chat_session_id == session_id).delete()
 
-    # Delete the session
     db.delete(session)
     db.commit()
 
@@ -177,8 +163,6 @@ async def update_session_title(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Auto-generate a title for the chat session based on first message"""
-    # Verify session belongs to user
     session = db.query(ChatSession).filter(
         ChatSession.id == session_id,
         ChatSession.user_id == current_user.id
@@ -190,7 +174,6 @@ async def update_session_title(
             detail="Chat session not found"
         )
 
-    # Get first user message
     first_message = db.query(Message).filter(
         Message.chat_session_id == session_id,
         Message.is_user_message == True
@@ -203,10 +186,8 @@ async def update_session_title(
         )
 
     try:
-        # Generate title using Gemini
         new_title = await gemini_service.generate_chat_title(first_message.content)
 
-        # Update session title
         session.title = new_title
         db.commit()
 

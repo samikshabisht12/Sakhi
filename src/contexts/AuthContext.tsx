@@ -70,7 +70,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       setError(null);
       await apiService.register(data);
-      // After registration, automatically log the user in
       await login({ email: data.email, password: data.password });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Registration failed';
@@ -87,16 +86,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
   };
 
-  // Check if user is already logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
       if (apiService.isAuthenticated()) {
         try {
           const userData = await apiService.getCurrentUser();
           setUser(userData);
-        } catch (err) {
-          // Token is invalid, logout
-          apiService.logout();
+        } catch (error) {
+          logout();
         }
       }
       setIsLoading(false);

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 
 export const useViewportHeight = () => {
   const [viewportHeight, setViewportHeight] = useState(() => {
-    // Use visualViewport if available for better mobile support
     if (typeof window !== 'undefined') {
       return window.visualViewport?.height || window.innerHeight;
     }
@@ -11,7 +10,6 @@ export const useViewportHeight = () => {
 
   useEffect(() => {
     const updateViewportHeight = () => {
-      // Use visualViewport if available (better for mobile keyboard detection)
       if (window.visualViewport) {
         setViewportHeight(window.visualViewport.height);
       } else {
@@ -19,10 +17,8 @@ export const useViewportHeight = () => {
       }
     };
 
-    // Listen for viewport changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateViewportHeight);
-      // Remove scroll listener as it can cause unwanted behavior
     } else {
       window.addEventListener('resize', updateViewportHeight);
     }

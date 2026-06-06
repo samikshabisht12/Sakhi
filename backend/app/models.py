@@ -13,10 +13,9 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    chat_sessions = relationship("ChatSession", back_populates="user")
+    sessions = relationship("ChatSession", back_populates="user")
     messages = relationship("Message", back_populates="user")
 
 class ChatSession(Base):
@@ -26,11 +25,10 @@ class ChatSession(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    user = relationship("User", back_populates="chat_sessions")
-    messages = relationship("Message", back_populates="chat_session")
+    user = relationship("User", back_populates="sessions")
+    messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
 
 class Message(Base):
     __tablename__ = "messages"
@@ -40,10 +38,9 @@ class Message(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     content = Column(Text, nullable=False)
     is_user_message = Column(Boolean, nullable=False)  # True for user, False for AI
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationships
-    chat_session = relationship("ChatSession", back_populates="messages")
+    session = relationship("ChatSession", back_populates="messages")
     user = relationship("User", back_populates="messages")
 
 class Report(Base):
